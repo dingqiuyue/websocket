@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.dev.js"></script>
+    <title>简单聊天A</title>
+</head>
+
+<body>
+    <div id="Chat_box"></div>
+    <div>
+        <input type="text" id="input">
+        <button class="btn btn-primary" type="button" onclick="send()">发送</button>
+    </div>
+    <script>
+        var socket = io.connect('ws://localhost:3000');
+        socket.on('connect', function () {
+            //连接成功
+            console.log("success");
+        });
+
+        socket.on('disconnect', function (data) {
+            //连接断开
+            console.log("disconnect");
+        });
+        //监听从服务器接收到的消息
+        socket.on('message', function (data) {
+            console.log(data);
+            let oP = document.createElement("p");
+            oP.innerHTML = `服务端：<span>${data}</span>`;
+            document.getElementById("Chat_box").appendChild(oP);
+        });
+
+        function send() {
+            let tInput = document.getElementById("input").value;
+            if (!tInput) return;
+            let oP = document.createElement("p");
+            oP.innerHTML = `客户端：<span>${tInput}</span>`;
+            document.getElementById("Chat_box").appendChild(oP);
+            socket.emit("send", tInput);
+        }
+        // 监听 news 会话
+        socket.on('news', function (data) {
+            console.log(data);
+            let oP = document.createElement('p');
+            oP.innerHTML = `服务端：<span>我知道了，你说“${data}”</span>`;
+            document.getElementById('Chat_box').appendChild(oP);
+        });
+    </script>
+</body>
+
+</html>
